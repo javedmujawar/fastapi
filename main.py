@@ -5,4 +5,4 @@ app = FastAPI()
 # home route
 @app.get("/")
 def home():
-    return {"message": "Welcome to the FastAPI application!"}
+    return {"message": "Welcome to the FastAPI application."}
