@@ -1,30 +1,42 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi import FastAPI
+
 app = FastAPI()
 
-class User(BaseModel):
-    name: str
-    age: int
-    email: str="abc"
-# home route
-@app.post("/create-user")
-def create_user(name:str, age:int=0):
-    return {"Name": name, "Age": age}
+todos = []
+class Todo(BaseModel):
+    id:int
+    title:str
+    completed:bool
 
-@app.post("/create-item")
-def create_item(item:User):
-    return {"message": "User Created", "date": item}
+@app.post("/todos")
+def create_todo(todo: Todo):
+    todos.append(todo)
+    return {"message": "Todo created successfully", "todo": todo}
 
-class Address(BaseModel):
-    city: str
-    pincode: int
+@app.get("/todos")
+def get_todos():
+    return {"todos": todos} 
 
-class User(BaseModel):
-    name: str
-    age: int
-    email: str
-    address: Address
+@app.get("/todos/{todo_id}")
+def get_todo(todo_id: int): 
+    for todo in todos:
+        if todo.id == todo_id:
+            return {"todo": todo}
+    return {"message": "Todo not found"}
 
-@app.post("/create-user-with-address")    
-def create_user_with_address(user: User):
-    return user
+@app.put("/todos/{todo_id}")
+def update_todo(todo_id: int, updated_todo: Todo):
+    for index, todo in enumerate(todos):
+        if todo.id == todo_id:
+            todos[index] = updated_todo
+            return {"message": "Todo updated successfully", "todo": updated_todo}
+    return {"message": "Todo not found"}
+
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id: int):   
+    for index, todo in enumerate(todos):
+        if todo.id == todo_id:
+            todos.pop(index)
+            return {"message": "Todo deleted successfully"}
+    return {"message": "Todo not found"}
