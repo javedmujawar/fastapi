@@ -17,4 +17,6 @@ def users():
 def about():
     return {"message": "This is a simple FastAPI application."}
 
-
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    return {"user_id": user_id} 
