@@ -8,23 +8,17 @@ users = []
 class User(BaseModel):
     name: str
     age: int
+    password: str
 
-@app.post("/users")  
-def create_user(user:User):
-    users.append(user)
-    return {"message":"User created successfully", "user": user}
+class UserrResponse(BaseModel):
+    name: str
+    age: int 
 
-@app.get("/users")
-def get_users():
-    return {"users":users}
+@app.get("/user",response_model=UserrResponse)
+def get_user():
+    return {
+        "name": "John Doe",
+        "age": 30,
+        "password": "secret"
 
-@app.put("/users/{user_id}")
-def update_user(user_id:int, user:User,notify:bool=False):
-    if user_id< len(users):
-        users[user_id] = user
-        return{
-            "message":"User updated successfully",
-            "notify":notify,
-            "data":user
-        }  
-    return {"error":"User not found"}
+    }
