@@ -3,20 +3,14 @@ from fastapi import FastAPI
 app = FastAPI()
 
 # home route
-@app.get("/")
-def home():
-    return {"message": "Welcome to the FastAPI application."}
-
-#users route
 @app.get("/users")
-def users():
-    return {"users":["user1", "user2", "user3"]}
+def home(name:str= None):
+    return {"Name": name}
 
-#about route
-@app.get("/about")
-def about():
-    return {"message": "This is a simple FastAPI application."}
+@app.get("/products")
+def products(limit:int=10):
+    return { "limit": limit}
 
-@app.get("/users/{user_id}")
-def get_user(user_id: int):
-    return {"user_id": user_id} 
+@app.get("/items")
+def items(name:str=None, price:int=0):
+    return { "Name": name, "Price": price }
