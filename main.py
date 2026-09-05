@@ -1,29 +1,28 @@
-from pydantic import BaseModel
-from fastapi import FastAPI,status, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Depends, Header, HTTPException
 
 app = FastAPI()
 
-class UserNotFoundException(HTTPException):
-    def __init__(self,name:str):
-        self.name = name
+# def common_logic():
+#     # Common logic that can be reused across endpoints
+#     return {"message": "This is common logic"}  
 
-@app.exception_handler(UserNotFoundException)
-def handle_user_not_found(request: Request, exc: UserNotFoundException):
-    return JSONResponse(
-        status_code=status.HTTP_404_NOT_FOUND,
-        content={"message": f"User '{exc.name}' not found.", "status":"error"},
-    )
+# @app.get("/home")
+# def home(data=Depends(common_logic)):
+#     return {"endpoint": "home", "data": data}
 
+# def get_current_user():
+#     # Logic to get the current user
+#     return {"user": "Javed"}
 
-@app.get("/user/{name}")
-def get_user(name: str):
-    if name != "John":
-        raise UserNotFoundException(name)
-    return {name}
-        
-@app.get("/users/{user_id}")
-def get_users(user_id: int):
-    if user_id != 1:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"message": "User retrieved successfully"}
+# @app.get("/profile")
+# def profile(user=Depends(get_current_user)):
+#     return {"endpoint": "profile", "user": user}
+
+def verify_token(token: str=Header(None)):
+    if token != "mysecrettoken":
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return token
+
+@app.get("/secure-data")
+def secure_data(user=Depends(verify_token)):
+    return {"message": "This is secure data", "user": user}
