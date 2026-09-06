@@ -1,28 +1,18 @@
-from fastapi import FastAPI, Depends, Header, HTTPException
-
+from fastapi import FastAPI, Request
+import time
 app = FastAPI()
 
-# def common_logic():
-#     # Common logic that can be reused across endpoints
-#     return {"message": "This is common logic"}  
+# @app.middleware("http")
+# async def my_middleware(request: Request, call_next):
+#     print("Request received")
+#     response = await call_next(request)
+#     print("Response sent")
+#     return response
 
-# @app.get("/home")
-# def home(data=Depends(common_logic)):
-#     return {"endpoint": "home", "data": data}
-
-# def get_current_user():
-#     # Logic to get the current user
-#     return {"user": "Javed"}
-
-# @app.get("/profile")
-# def profile(user=Depends(get_current_user)):
-#     return {"endpoint": "profile", "user": user}
-
-def verify_token(token: str=Header(None)):
-    if token != "mysecrettoken":
-        raise HTTPException(status_code=401, detail="Invalid token")
-    return token
-
-@app.get("/secure-data")
-def secure_data(user=Depends(verify_token)):
-    return {"message": "This is secure data", "user": user}
+@app.middleware("http")
+async def log_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    print(f"Request: {request.method} {request.url} completed in {process_time:.4f} seconds")
+    return response
