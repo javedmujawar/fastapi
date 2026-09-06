@@ -13,5 +13,6 @@ app = FastAPI()
 
 @app.get("/")
 async def home():
+    """demo of aysnc"""
     await asyncio.sleep(3)
     return "Done"
