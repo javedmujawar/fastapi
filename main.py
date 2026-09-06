@@ -44,3 +44,14 @@ def read_todo(todo_id:int,db: Session = Depends(get_db)):
     if not todo:
         raise HTTPException(status_code=404, detail="Todo not found")
     return {"todo": todo}
+
+@app.put("/totos/{todo_id}")
+def update_todo(todo_id:int,title:str,db: Session= Depends(get_db)):
+    todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo not found")
+    todo.title = title
+    db.commit() 
+    db.refresh(todo)
+    return {"message": "Todo updated successfully", "todo": todo}
+
