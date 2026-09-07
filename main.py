@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+import os
+from dotenv import load_dotenv
 app = FastAPI()
-
+load_dotenv()
 # allowed origins (Front-end url)
-origins = ["http://localhost:3000"]
+origins = os.getenv("ORIGINS")
 
 app.add_middleware(
     CORSMiddleware,
