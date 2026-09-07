@@ -1,47 +1,20 @@
-from fastapi import FastAPI, UploadFile, File,HTTPException
-from fastapi.staticfiles import StaticFiles
-import os
-import shutil
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-#step1 : Ensure uploads folder exist
-UPLPAD_DIR = "upload"
-if not os.path.exists(UPLPAD_DIR):
-    os.makedirs(UPLPAD_DIR)
+# allowed origins (Front-end url)
+origins = ["http://localhost:3000"]
 
-#step 2: Static file setup
-# http://124.0.0.1:8080/Files/<file name>
-app.mount("/files",StaticFiles(directory=UPLPAD_DIR),name="files")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-#step 3: upload api
-@app.post("/upload")
-def upload_file(file:UploadFile=File(...) ):
-    filename = file.filename
-    file_path = os.path.join(UPLPAD_DIR,filename)
-
-    if not filename:
-         raise HTTPException(status_code=400, detail="file not selected")
-    with open(file_path,"wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-        return {
-            "message":"File Uploaded",
-            "fileName":filename,
-            "fileurl":f"http://124.0.0.1:8080/Files/{filename}"
-        }
-@app.get("files/{filename}")
-def get_file(filename:str):
-    file_path = os.path.join(UPLPAD_DIR,filename)
-
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=400, detail="file not found")
-    return {
-        "file_url":f"http://124.0.0.1:8080/Files/{filename}"
-    }
 
 @app.get("/")
 def home():
-    return {
-        "message":"file uploaded reunning"
-    }
-    
+    return {"message": "CORS enabled api"}
