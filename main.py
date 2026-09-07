@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import os
-from dotenv import load_dotenv
+from config import settings
+
 app = FastAPI()
-load_dotenv()
+
 # allowed origins (Front-end url)
-origins = os.getenv("ORIGINS")
+origins = settings.origins
 
 app.add_middleware(
     CORSMiddleware,
@@ -14,7 +14,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/")
 def home():
