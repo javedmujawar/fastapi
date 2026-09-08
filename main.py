@@ -1,29 +1,23 @@
-import requests
-from fastapi import FastAPI
-from bs4 import BeautifulSoup
-import time
+from fastapi import FastAPI,Request
+from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 app = FastAPI()
-# cache Store
-cache_data = []
-last_fetch = 0
+
+#Limiter setup
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+#error Handler
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_handler(request:Request, exc:RateLimitExceeded):
+    return JSONResponse(status_code=429,content={"details":"Too many request"})
 
 
-@app.get("/news")
-def get_news():
-    global cache_data, last_fetch
-    start = time.time()
-    if time.time() - last_fetch > 60:
-        print("Fetching fresh data")
-        url = "https://news.ycombinator.com/"
-        response = requests.get(url)
-        soap = BeautifulSoup(response.text, "html.parser")
-        cache_data = [item.text for item in soap.find_all("span", class_="titleline")]
-        last_fetch = time.time()
-    else:
-        print("Catche data")
-
-    end = time.time()
-    time_taken = round(end - start)
-    print(time_taken)
-    return {"data": cache_data, "time_taken": time_taken}
+#Rate Limiter  API
+@app.get("/data")
+@limiter.limit("5/minute")
+def get_data(request:Request):
+    return {"message":"Done"}
